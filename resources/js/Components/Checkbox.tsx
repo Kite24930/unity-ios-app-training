@@ -9,7 +9,7 @@ export default function Checkbox({
             {...props}
             type="checkbox"
             className={
-                'rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500 ' +
+                'rounded border-gray-600 bg-gray-800 text-purple-500 shadow-sm focus:ring-purple-500 focus:ring-offset-gray-900 ' +
                 className
             }
         />
