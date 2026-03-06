@@ -139,7 +139,7 @@ Unity Hubから使用するUnityバージョンをインストールします：
 
 1. Unity Hub → 「Installs」タブ
 2. 「Install Editor」をクリック
-3. **Unity 2022.3 LTS** を選択（推奨）
+3. **Unity 6 LTS**（6000.x）を選択（推奨）
 4. モジュールで **iOS Build Support** にチェック
 
 > ⚠️ iOS向けビルドには **Xcode**（macOS）が必要です。Windows環境の場合は、まず基本を学び、iOS向けビルドはmac環境で行いましょう。
@@ -154,7 +154,7 @@ Unity Hubから使用するUnityバージョンをインストールします：
 5. 「Create project」をクリック
 ```
 
-> 🔄 **Web開発との対比**: これは `composer create-project laravel/laravel my-app` や `npx create-react-app my-app` に相当する操作です。
+> 🔄 **Web開発との対比**: これは `composer create-project laravel/laravel my-app` や `npm create vite@latest my-app -- --template react` に相当する操作です。
 
 ### 5. プロジェクト構造の理解
 
@@ -605,6 +605,8 @@ document.addEventListener("keydown", (e) => {
 });
 ```
 
+> ⚠️ **注意**: `Input.GetAxis()` はレガシー Input Manager の API です。Unity 6 以降の新規プロジェクトでは、新しい **Input System パッケージ** の使用が推奨されています。本コースでは学習の簡略化のためレガシー API を使用していますが、実際のプロジェクトでは新しい Input System への移行を検討してください。
+
 #### `Time.deltaTime`
 
 前のフレームからの経過時間（秒）です。
@@ -985,12 +987,12 @@ public class UIManager : MonoBehaviour
       |
       +------ x (右)
      /
-    z (手前)
+    z (奥 / forward)
 ```
 
 - **X軸**: 左右（負が左、正が右）
 - **Y軸**: 上下（負が下、正が上）
-- **Z軸**: 前後（負が奥、正が手前）
+- **Z軸**: 前後（負が手前、正が奥）← Unity は左手座標系です
 
 ### Transform コンポーネント
 
@@ -1329,10 +1331,13 @@ public class BulletPool : MonoBehaviour
 | 素材 | サイズ | 説明 |
 |------|--------|------|
 | アプリアイコン | 1024x1024 | 角丸なしの正方形 |
-| スクリーンショット (6.7") | 1290x2796 | iPhone 15 Pro Max 用 |
-| スクリーンショット (6.5") | 1284x2778 | iPhone 14 Plus 用 |
+| スクリーンショット (6.9") | 1320x2868 | iPhone 16 Pro Max 用（必須） |
+| スクリーンショット (6.7") | 1290x2796 | iPhone 15 Pro Max / 14 Plus 用 |
+| スクリーンショット (6.5") | 1284x2778 | iPhone 11 Pro Max / XS Max 用 |
 | スクリーンショット (5.5") | 1242x2208 | iPhone 8 Plus 用 |
 | プレビュー動画 | 任意 | 30秒以内推奨 |
+
+> 💡 2024年以降、Apple はスクリーンショット要件を簡略化しました。1つのサイズをアップロードすれば、他のデバイスサイズに自動スケーリングされます。6.9" をベースにアップロードするのが最も効率的です。
 
 > 🔄 **Web開発との対比**: OGP画像やファビコンの設定と同じ作業です。ただし、App Store はサイズの規格が厳密です。
 
@@ -1369,7 +1374,7 @@ App Store 審査に通るために確認すべきポイント：
 | バグが多い | QA テストを十分に行う |
 | 説明と実際の違い | スクリーンショットを最新に |
 
-> 💡 初回審査は 24〜48時間 かかることが多いです。リジェクトされても修正して再提出できるので、恐れずに提出しましょう！
+> 💡 初回審査は通常 24〜48時間ですが、時期によっては 3〜5日かかることもあります。リジェクトされても修正して再提出できるので、恐れずに提出しましょう！リリース計画には余裕を持たせることをお勧めします。
 
 ### TestFlight での事前テスト
 
@@ -1477,6 +1482,8 @@ public class ScoreManager : MonoBehaviour
 
 ```csharp
 // リスナー側 - UIの更新
+using TMPro;
+
 public class ScoreUI : MonoBehaviour
 {
     [SerializeField] private TextMeshProUGUI scoreText;
