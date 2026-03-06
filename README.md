@@ -24,6 +24,7 @@ Unity Quest は、Laravel/React の知識をベースに Unity の概念を対�
 - ゲーミフィケーション（XP獲得、バッジ収集、連続学習ストリーク）
 - Markdown ベースのコースコンテンツ（コードハイライト付き）
 - レスポンシブデザイン（モバイル対応）
+- 管理者パネル（コース・チャプター・レッスンの CRUD、画像アップロード）
 
 ## 技術スタック
 
@@ -272,13 +273,21 @@ npm run build
 ```
 unity-ios-app-training/
 ├── app/
-│   ├── Http/Controllers/
-│   │   ├── CourseController.php      # コース一覧・詳細
-│   │   ├── DashboardController.php   # ダッシュボード
-│   │   ├── LessonController.php      # レッスン表示・完了処理
-│   │   └── ProfileController.php     # プロフィール管理
+│   ├── Http/
+│   │   ├── Controllers/
+│   │   │   ├── CourseController.php      # コース一覧・詳細
+│   │   │   ├── DashboardController.php   # ダッシュボード
+│   │   │   ├── LessonController.php      # レッスン表示・完了処理
+│   │   │   ├── ProfileController.php     # プロフィール管理
+│   │   │   └── Admin/
+│   │   │       ├── CourseController.php   # コース CRUD（管理者用）
+│   │   │       ├── ChapterController.php  # チャプター CRUD（管理者用）
+│   │   │       ├── LessonController.php   # レッスン CRUD（管理者用）
+│   │   │       └── ImageController.php    # 画像アップロード（管理者用）
+│   │   └── Middleware/
+│   │       └── AdminMiddleware.php       # 管理者権限チェック
 │   └── Models/
-│       ├── User.php                  # ユーザー（XP, ストリーク, ロケール）
+│       ├── User.php                  # ユーザー（XP, ストリーク, ロケール, 管理者フラグ）
 │       ├── Course.php                # コース
 │       ├── Chapter.php               # チャプター（コースの章）
 │       ├── Lesson.php                # レッスン（Markdown コンテンツ）
@@ -296,9 +305,11 @@ unity-ios-app-training/
 │   │   ├── ProgressBar.tsx           # 進捗バー
 │   │   ├── XpBadge.tsx              # XP 表示バッジ
 │   │   ├── DifficultyBadge.tsx      # 難易度バッジ
+│   │   ├── MarkdownRenderer.tsx     # Markdown → HTML レンダラー
 │   │   └── ...                       # 共通 UI コンポーネント
 │   ├── Layouts/
 │   │   ├── AppLayout.tsx            # メインレイアウト（ナビ付き）
+│   │   ├── AdminLayout.tsx          # 管理画面レイアウト（サイドバー付き）
 │   │   ├── AuthenticatedLayout.tsx  # 認証済みレイアウト
 │   │   └── GuestLayout.tsx          # ゲストレイアウト
 │   ├── Pages/
@@ -309,6 +320,11 @@ unity-ios-app-training/
 │   │   │   └── Show.tsx             # コース詳細
 │   │   ├── Lessons/
 │   │   │   └── Show.tsx             # レッスン閲覧
+│   │   ├── Admin/
+│   │   │   ├── Dashboard.tsx        # 管理ダッシュボード
+│   │   │   ├── Courses/             # コース管理（一覧・フォーム）
+│   │   │   ├── Chapters/            # チャプター管理（一覧・フォーム）
+│   │   │   └── Lessons/             # レッスン管理（一覧・フォーム）
 │   │   ├── Auth/                    # 認証関連ページ
 │   │   └── Profile/                 # プロフィール関連ページ
 │   └── types/                        # TypeScript 型定義
@@ -333,7 +349,8 @@ unity-ios-app-training/
 users
 ├── id, name, email, password
 ├── total_xp, current_streak, last_activity_date
-└── locale (ja/en)
+├── locale (ja/en)
+└── is_admin (boolean, default: false)
 
 courses
 ├── id, slug, title, title_en, description, description_en
@@ -367,6 +384,8 @@ user_badges
 
 ## ルーティング
 
+### 公開ルート
+
 | HTTP メソッド | URL | 説明 | 認証 |
 |-------------|-----|------|------|
 | GET | `/` | トップページ | 不要 |
@@ -379,6 +398,21 @@ user_badges
 | GET | `/profile` | プロフィール編集 | 必要 |
 | PATCH | `/profile` | プロフィール更新 | 必要 |
 | DELETE | `/profile` | アカウント削除 | 必要 |
+
+### 管理者ルート（`/admin` プレフィックス、管理者権限必須）
+
+| HTTP メソッド | URL | 説明 |
+|-------------|-----|------|
+| GET | `/admin` | 管理ダッシュボード |
+| GET/POST | `/admin/courses` | コース一覧 / 作成 |
+| GET/PUT/DELETE | `/admin/courses/{course}` | コース詳細 / 更新 / 削除 |
+| GET | `/admin/courses/create` | コース新規作成フォーム |
+| GET | `/admin/courses/{course}/edit` | コース編集フォーム |
+| GET/POST | `/admin/courses/{course}/chapters` | チャプター一覧 / 作成 |
+| GET/PUT/DELETE | `/admin/chapters/{chapter}` | チャプター更新 / 削除 |
+| GET/POST | `/admin/chapters/{chapter}/lessons` | レッスン一覧 / 作成 |
+| GET/PUT/DELETE | `/admin/lessons/{lesson}` | レッスン更新 / 削除 |
+| POST | `/admin/images` | 画像アップロード |
 
 ## 環境変数
 
@@ -429,6 +463,29 @@ npm run dev
 
 # Sail 環境では VITE_PORT が公開されているか確認（compose.yaml）
 ```
+
+### 管理者ユーザーの設定
+
+管理者パネル（`/admin`）にアクセスするには、ユーザーの `is_admin` フラグを有効にする必要があります。
+
+```bash
+# Docker（Sail）の場合
+./vendor/bin/sail artisan tinker
+>>> User::where('email', 'test@example.com')->update(['is_admin' => true]);
+
+# ローカル環境の場合
+php artisan tinker
+>>> User::where('email', 'test@example.com')->update(['is_admin' => true]);
+```
+
+管理者ユーザーは、ナビゲーションバーに「Admin」リンクが表示されます。管理画面では以下の操作が可能です:
+
+- コースの作成・編集・削除
+- チャプターの作成・編集・削除（コースに紐づく）
+- レッスンの作成・編集・削除（チャプターに紐づく、Markdown エディタ付き）
+- レッスン用画像のアップロード
+
+> **注意:** 画像アップロード機能を使う場合は `php artisan storage:link` でストレージのシンボリックリンクを作成してください。
 
 ### テスト用アカウント
 
