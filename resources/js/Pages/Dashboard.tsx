@@ -150,7 +150,7 @@ export default function Dashboard({ stats, courseProgress, recentCompletions, ba
                                                 <span className="text-gray-500">{item.course_title}</span>
                                                 <span className="text-yellow-400">+{item.xp_earned} XP</span>
                                             </div>
-                                            <div className="text-xs text-gray-600 mt-1">{item.completed_at}</div>
+                                            <div className="text-xs text-gray-500 mt-1">{item.completed_at}</div>
                                         </div>
                                     ))
                                 ) : (

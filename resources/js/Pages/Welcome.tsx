@@ -145,7 +145,7 @@ export default function Welcome() {
                         </p>
                         <Link
                             href={auth?.user ? route('courses.index') : route('register')}
-                            className="inline-flex items-center gap-2 rounded-xl bg-white px-8 py-4 text-lg font-semibold text-gray-900 hover:bg-gray-100 transition-colors"
+                            className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-purple-600 to-cyan-600 px-8 py-4 text-lg font-semibold text-white hover:from-purple-700 hover:to-cyan-700 transition-colors shadow-lg shadow-purple-500/25"
                         >
                             🎮 {locale === 'ja' ? 'はじめる' : 'Get Started'}
                         </Link>
