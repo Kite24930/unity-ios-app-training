@@ -14,7 +14,7 @@ class User extends Authenticatable
     use HasFactory, Notifiable;
 
     protected $fillable = [
-        'name', 'email', 'password', 'total_xp', 'current_streak', 'last_activity_date', 'locale',
+        'name', 'email', 'password', 'total_xp', 'current_streak', 'last_activity_date', 'locale', 'is_admin',
     ];
 
     protected $hidden = [
@@ -28,6 +28,7 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'last_activity_date' => 'date',
+            'is_admin' => 'boolean',
         ];
     }
 

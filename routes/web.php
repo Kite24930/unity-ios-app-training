@@ -4,6 +4,10 @@ use App\Http\Controllers\CourseController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LessonController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Admin\CourseController as AdminCourseController;
+use App\Http\Controllers\Admin\ChapterController as AdminChapterController;
+use App\Http\Controllers\Admin\LessonController as AdminLessonController;
+use App\Http\Controllers\Admin\ImageController as AdminImageController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -30,6 +34,15 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
+
+// Admin routes
+Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/', fn () => Inertia::render('Admin/Dashboard'))->name('dashboard');
+    Route::resource('courses', AdminCourseController::class);
+    Route::resource('courses.chapters', AdminChapterController::class)->shallow();
+    Route::resource('chapters.lessons', AdminLessonController::class)->shallow();
+    Route::post('/images', [AdminImageController::class, 'store'])->name('images.store');
 });
 
 require __DIR__.'/auth.php';

@@ -6,6 +6,7 @@ export interface User {
     total_xp: number;
     current_streak: number;
     locale: 'ja' | 'en';
+    is_admin: boolean;
 }
 
 export type PageProps<
@@ -107,4 +108,46 @@ export interface RecentCompletion {
     course_title: string;
     xp_earned: number;
     completed_at: string;
+}
+
+// Admin types
+export interface AdminCourse {
+    id: number;
+    slug: string;
+    title: string;
+    title_en: string | null;
+    description: string;
+    description_en: string | null;
+    icon: string;
+    color: string;
+    sort_order: number;
+    estimated_hours: number;
+    difficulty: 'beginner' | 'intermediate' | 'advanced';
+    is_published: boolean;
+    lessons_count?: number;
+}
+
+export interface AdminChapter {
+    id: number;
+    course_id: number;
+    slug: string;
+    title: string;
+    title_en: string | null;
+    description: string | null;
+    description_en: string | null;
+    sort_order: number;
+    lessons_count?: number;
+}
+
+export interface AdminLesson {
+    id: number;
+    chapter_id: number;
+    slug: string;
+    title: string;
+    title_en: string | null;
+    content_md: string;
+    content_md_en: string | null;
+    sort_order: number;
+    xp_reward: number;
+    estimated_minutes: number;
 }

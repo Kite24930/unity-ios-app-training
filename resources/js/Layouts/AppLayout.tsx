@@ -44,6 +44,14 @@ export default function AppLayout({ children }: PropsWithChildren) {
                                         {t('nav.dashboard')}
                                     </Link>
                                 )}
+                                {user?.is_admin && (
+                                    <Link
+                                        href={route('admin.dashboard')}
+                                        className="text-sm text-purple-400 hover:text-purple-300 transition-colors"
+                                    >
+                                        Admin
+                                    </Link>
+                                )}
                             </div>
                         </div>
 
